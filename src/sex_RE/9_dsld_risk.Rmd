@@ -1,0 +1,125 @@
+---
+title: "dsld_risk_analysis"
+output: html_notebook
+---
+
+## prepare data
+```{r}
+# input 
+pw='/Users/yangz/ZYsync/01_braindev_2020/01_braindev_2022/children_brainage/'
+perc_thick_1.5 = read.csv(paste0(pw,'Output/1.5T/thick/perc.csv'))
+
+# split data
+hc_1.5 = subset(perc_thick_1.5, diag==0)
+hc_1.5 = hc_1.5[,4:65]
+pa_1.5 = subset(perc_thick_1.5, diag==1)
+pa_1.5 = pa_1.5[,4:65]
+
+```
+
+## descriptive
+```{r}
+boxplot(hc_1.5)
+boxplot(pa_1.5)
+```
+
+
+## odd ratio
+```{r}
+# detect outliers
+n_out_hc_1.5 = vector(length = 62)
+n_out_pa_1.5 = vector(length = 62)
+
+for (r in seq(1,62)){
+  out1 = hc_1.5[,r]>0.95
+  out2 = hc_1.5[,r]<0.05
+  n_out_hc_1.5[r] = sum(out1 | out2)
+  
+  out1 = pa_1.5[,r]>0.95
+  out2 = pa_1.5[,r]<0.05
+  n_out_pa_1.5[r] = sum(out1 | out2)
+}
+
+# odd ratio
+
+odd_1.5 = ((n_out_pa_1.5)/nrow(pa_1.5))/((n_out_hc_1.5)/nrow(hc_1.5)+0.0001)
+
+plot(odd_1.5)
+
+names(odd_1.5) = names(hc_1.5)
+write.csv(file = paste0(pw, 'Output/1.5T/dlsd_risk/dsld_odd_thick_1.5.csv'), x=odd_1.5)
+```
+
+```{r}
+plot(odd_1.5>1)
+```
+
+## risk ratio
+```{r}
+risk_1.5 = (n_out_pa_1.5/(n_out_pa_1.5+n_out_hc_1.5+0.001)+0.001)/((nrow(pa_1.5)-n_out_pa_1.5)/(nrow(pa_1.5)+nrow(hc_1.5)-n_out_pa_1.5-n_out_hc_1.5))
+
+plot(risk_1.5)
+
+plot(risk_1.5>1)
+
+```
+
+## output risk_1.5
+```{r}
+names(risk_1.5) = names(hc_1.5)
+write.csv(file = paste0(pw, 'Output/1.5T/dlsd_risk/dlsd_risk_thick1.5.csv'), x = risk_1.5)
+
+```
+
+## subcortical
+```{r}
+# input 
+perc_vol_1.5 = read.csv(paste0(pw,'Output/1.5T/vol/perc.csv'))
+
+# split data
+hc_1.5 = subset(perc_vol_1.5, diag==0)
+hc_1.5 = hc_1.5[,4:23]
+pa_1.5 = subset(perc_vol_1.5, diag==1)
+pa_1.5 = pa_1.5[,4:23]
+
+```
+
+## odd ratio
+```{r}
+# detect outliers
+n_out_hc_1.5 = vector(length = 20)
+n_out_pa_1.5 = vector(length = 20)
+
+for (r in seq(1,20)){
+  out1 = hc_1.5[,r]>0.95
+  out2 = hc_1.5[,r]<0.05
+  n_out_hc_1.5[r] = sum(out1 | out2)
+  
+  out1 = pa_1.5[,r]>0.95
+  out2 = pa_1.5[,r]<0.05
+  n_out_pa_1.5[r] = sum(out1 | out2)
+  
+}
+
+# odd ratio
+
+odd_1.5 = ((n_out_pa_1.5)/nrow(pa_1.5))/((n_out_hc_1.5)/nrow(hc_1.5)+0.0001)
+plot(odd_1.5)
+
+names(odd_1.5) = names(hc_1.5)
+write.csv(file = paste0(pw, 'Output/1.5T/dlsd_risk/dsld_odd_vol_1.5.csv'), x=odd_1.5)
+
+```
+
+## risk ratio
+```{r}
+risk_1.5 = (n_out_pa_1.5/(n_out_pa_1.5+n_out_hc_1.5+0.001)+0.001)/((nrow(pa_1.5)-n_out_pa_1.5)/(nrow(pa_1.5)+nrow(hc_1.5)-n_out_pa_1.5-n_out_hc_1.5))
+
+plot(risk_1.5)
+
+plot(risk_1.5>1)
+
+names(risk_1.5) = names(hc_1.5)
+write.csv(file = paste0(pw, 'Output/1.5T/dlsd_risk/dlsd_risk_vol1.5.csv'), x = risk_1.5)
+
+```

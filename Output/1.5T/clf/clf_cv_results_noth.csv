@@ -1,0 +1,5 @@
+feature,Acc,AUC
+thick,0.9,0.9625
+vol,0.825,0.9475
+stats,0.775,0.885
+full,0.95,0.99
